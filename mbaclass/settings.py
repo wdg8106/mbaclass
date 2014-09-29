@@ -35,6 +35,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'dynamic_forms',
 
     'xadmin',
     'crispy_forms',
@@ -51,6 +52,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'dynamic_forms.middlewares.FormModelMiddleware',
 )
 
 ROOT_URLCONF = 'mbaclass.urls'

@@ -4,7 +4,6 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserM
 
 
 class Member(AbstractBaseUser, PermissionsMixin):
-    name = models.CharField('性名', max_length=30, unique=True)
     email = models.EmailField(u'电子邮件', blank=False, unique=True)
 
     avatar = models.ImageField(u'头像', upload_to='avatar/', blank=True)
@@ -12,6 +11,8 @@ class Member(AbstractBaseUser, PermissionsMixin):
     classnum = models.PositiveIntegerField(u'班级', choices=((1, u'一班'), (2, u'二班'), (3, u'三班'), (4, u'四班')))
 
     number = models.CharField(u'学号', max_length=12, help_text=u'MBA学号，例如MB1408434', null=False, blank=False, unique=True)
+
+    username = models.CharField('性名', max_length=30)
 
     qq = models.CharField(u'QQ号码', max_length=15, null=False, blank=False)
     mobile = models.CharField(u'手机号', max_length=20, null=False, blank=False)
@@ -37,11 +38,11 @@ class Member(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    USERNAME_FIELD = 'number'
+    REQUIRED_FIELDS = ['email', 'username']
     
     def __unicode__(self):
-        return self.name
+        return self.username
 
     class Meta:
         verbose_name = '成员'

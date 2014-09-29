@@ -5,10 +5,10 @@ from xadmin.layout import *
 from .models import Member
 
 class MemberAdmin(object):
-    list_display = ('number', 'avatar', 'name', 'email', 'qq', 'gender', 'title')
-    list_filter = ('name', 'email', 'qq', 'gender', 'classnum', 'mobile', 'birthday')
+    list_display = ('number', 'avatar', 'username', 'email', 'qq', 'gender', 'title')
+    list_filter = ('username', 'email', 'qq', 'gender', 'classnum', 'mobile', 'birthday')
 
-    search_fields = ('number', 'name', 'email')
+    search_fields = ('number', 'username', 'email')
 
     ordering = ('number',)
     style_fields = {'user_permissions': 'm2m_transfer', 'gender': 'radio-inline'}
@@ -21,7 +21,7 @@ class MemberAdmin(object):
         TabHolder(
             Tab('必填项目',
                 Fieldset('个人信息',
-                    'number', 'name', 'avatar', 'classnum', 'birthday', 'gender', 'is_active',
+                    'number', 'username', 'avatar', 'classnum', 'birthday', 'gender', 'is_active',
                     description="个人注册所需信息"
                 ),
                 Fieldset('联系方式',

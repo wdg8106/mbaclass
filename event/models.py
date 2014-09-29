@@ -23,7 +23,7 @@ class Event(models.Model):
 
     author = models.ForeignKey(Member, verbose_name=u'发布者', related_name='public_events')
 
-    members = models.ManyToManyField(Member, through='EventMember', through_fields=('event', 'member'))
+    members = models.ManyToManyField(Member, verbose_name=u'通知人', through='EventMember', through_fields=('event', 'member'))
 
     def __unicode__(self):
         return self.slug
