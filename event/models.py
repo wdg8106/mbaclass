@@ -2,11 +2,14 @@
 from django.db import models
 
 from member.models import Member
+from dynamic_forms.models import FormModel
+
+from DjangoUeditor.models import UEditorField
 
 # Create your models here.
 class Event(models.Model):
     slug = models.CharField(u'通知摘要', max_length=200)
-    content = models.TextField(u'通知内容')
+    content = UEditorField(u'通知内容', height=300, toolbars="full", imagePath="event/img/", filePath="event/file/", blank=False)
 
     public_time = models.DateTimeField(u'发布时间', auto_now=True)
 
@@ -24,6 +27,7 @@ class Event(models.Model):
     author = models.ForeignKey(Member, verbose_name=u'发布者', related_name='public_events')
 
     members = models.ManyToManyField(Member, verbose_name=u'通知人', through='EventMember', through_fields=('event', 'member'))
+    forms = models.ManyToManyField(FormModel, verbose_name=u'表单', through='EventForm', through_fields=('event', 'form'))
 
     def __unicode__(self):
         return self.slug
@@ -38,6 +42,23 @@ class EventMember(models.Model):
 
     is_response = models.BooleanField(u'是否已经回应', default=False)
 
+    def __unicode__(self):
+        return "%s对通知%s的应答" % (self.member, self.event)
+
     class Meta:
-        verbose_name = '通知反馈'
+        verbose_name = '通知成员'
         verbose_name_plural = verbose_name
+
+class EventForm(models.Model):
+    event = models.ForeignKey(Event, verbose_name=u'通知')
+    form = models.ForeignKey(FormModel, verbose_name=u'表单')
+
+    def __unicode__(self):
+        return "%s通知的%s表单" % (self.event, self.form)
+
+    class Meta:
+        verbose_name = '通知表单'
+        verbose_name_plural = verbose_name
+
+
+
