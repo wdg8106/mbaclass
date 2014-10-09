@@ -4,20 +4,32 @@ from xadmin.layout import *
 from xadmin.plugins.inline import Inline
 from DjangoUeditor.models import UEditorField
 from DjangoUeditor.widgets import UEditorWidget
-from .models import Event, EventMember, EventForm
+from .models import Event, EventMember, EventForm, EventField
 from django.forms import Media
+
+
+from dynamic_forms.admin import AdminFormFieldInlineForm
+
+class FormFieldInlineAdmin(object):
+    model = EventField
+    extra = 1
+    style = 'accordion'
+    form = AdminFormFieldInlineForm
+    list_display = ('field_type', 'name', 'label')
 
 class EventMemberInline(object):
     model = EventMember
     readonly_fields = ('is_response', )
-    extra = 1    
-
-class EventFormInline(object):
-    model = EventForm
-    extra = 1    
+    extra = 1
 
 class EventAdmin(object):
-    list_display = ('slug', 'public_time', 'start_time', 'end_time', 'author', 'is_active')
+
+    def show_page(self, event):
+        return '<a href="%s"/><i class="fa fa-eye"></i></a>' % self.get_admin_url('event_show', event.id)
+    show_page.short_description = "查看"
+    show_page.allow_tags = True
+
+    list_display = ('slug', 'public_time', 'start_time', 'end_time', 'author', 'is_active', 'show_page')
     list_filter = ('public_time', 'start_time', 'end_time', 'author', 'is_active')
 
     search_fields = ('slug',)
@@ -26,7 +38,7 @@ class EventAdmin(object):
 
     user_fields = ('author',)
 
-    inlines = (EventMemberInline, EventFormInline, )
+    inlines = (EventMemberInline, FormFieldInlineAdmin, )
 
     formfield_overrides = {UEditorField: {'widget': UEditorWidget({'width':'100%', 'height':300, 'toolbars':"full", 'imagePath':"event/img/", 'filePath':"event/file/"})}}
 
@@ -40,41 +52,25 @@ class EventMemberAdmin(object):
     model_icon = 'fa fa-bullhorn'
 xadmin.site.register(EventMember, EventMemberAdmin)
 
-class EventFormAdmin(object):
-    list_display = ('event', 'form')
-
-    model_icon = 'fa fa-bullhorn'
-xadmin.site.register(EventForm, EventFormAdmin)
-
-from dynamic_forms.admin import AdminFormModelForm, AdminFormFieldInlineForm
-from dynamic_forms.models import FormModel, FormFieldModel
-
-class FormFieldModelInlineAdmin(object):
-    model = FormFieldModel
-    extra = 1
-    style = 'accordion'
-    form = AdminFormFieldInlineForm
-    list_display = ('field_type', 'name', 'label')
-
-class FormModelAdmin(object):
-    form = AdminFormModelForm
-    inlines = (FormFieldModelInlineAdmin,)
-    list_display = ('name', 'submit_url', 'success_url', 'allow_display')
-    relfield_style = 'fk-ajax'
-
-xadmin.site.register(FormModel, FormModelAdmin)
-
 
 from xadmin.views.form import FormAdminView
 from dynamic_forms.forms import FormModelForm
 
 class EventFormView(FormAdminView):
     form = FormModelForm
+    form_template = 'event/show.html'
+    title = '活动通知'
 
-    def init_request(self, form_id, *args, **kwargs):
-        self.form_model = FormModel.objects.get(id=form_id)
-        self.title = self.form_model.name
+    def init_request(self, event_id, *args, **kwargs):
+        self.form_model = Event.objects.get(id=event_id)
         self.prepare_form()
+
+    def get_context(self):
+        context = super(EventFormView, self).get_context()
+        context.update({
+            'event': self.form_model
+        })
+        return context
 
     def get_form_datas(self):
         data = super(EventFormView, self).get_form_datas()

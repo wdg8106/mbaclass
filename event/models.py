@@ -1,10 +1,23 @@
 # coding=utf-8
 from django.db import models
+from django.template.defaultfilters import slugify
+
+try:  # pragma: no cover
+    from collections import OrderedDict
+except ImportError:  # pragma: no cover
+    from django.utils.datastructures import SortedDict as OrderedDict
+
+import json
 
 from member.models import Member
 from dynamic_forms.models import FormModel
 
 from DjangoUeditor.models import UEditorField
+
+from dynamic_forms.actions import action_registry
+from dynamic_forms.conf import settings
+from dynamic_forms.fields import TextMultiSelectField
+from dynamic_forms.formfields import formfield_registry
 
 # Create your models here.
 class Event(models.Model):
@@ -32,9 +45,78 @@ class Event(models.Model):
     def __unicode__(self):
         return self.slug
 
+    def get_fields_as_dict(self):
+        return OrderedDict(self.fields.values_list('name', 'label').all())
+
     class Meta:
         verbose_name = '通知'
         verbose_name_plural = verbose_name
+
+class EventField(models.Model):
+    event = models.ForeignKey(Event, verbose_name=u'通知', on_delete=models.CASCADE, related_name='fields')
+    field_type = models.CharField('字段类型', max_length=255, choices=formfield_registry.get_as_choices())
+    label = models.CharField('显示名称', max_length=20)
+    name = models.SlugField('字段名称', max_length=50, blank=True)
+    _options = models.TextField('选项', blank=True, null=True)
+    position = models.SmallIntegerField('显示位置', blank=True, default=0)
+
+    class Meta:
+        ordering = ['event', 'position']
+        unique_together = ("event", "name",)
+        verbose_name = '通知字段'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return '通知“%(event_name)s”中的“%(field_name)s”字段' % {
+            'field_name': self.label,
+            'event_name': self.event,
+        }
+
+    def generate_form_field(self, form):
+        field_type_cls = formfield_registry.get(self.field_type)
+        field = field_type_cls(**self.get_form_field_kwargs())
+        field.contribute_to_form(form)
+        return field
+
+    def get_form_field_kwargs(self):
+        kwargs = self.options
+        kwargs.update({
+            'name': self.name,
+            'label': self.label,
+        })
+        return kwargs
+
+    @property
+    def options(self):
+        """Options passed to the form field during construction."""
+        if not hasattr(self, '_options_cached'):
+            self._options_cached = {}
+            if self._options:
+                try:
+                    self._options_cached = json.loads(self._options)
+                except ValueError:
+                    pass
+        return self._options_cached
+
+    @options.setter
+    def options(self, opts):
+        if hasattr(self, '_options_cached'):
+            del self._options_cached
+        self._options = json.dumps(opts)
+
+    def save(self, *args, **kwargs):
+        if not self.name:
+            self.name = slugify(self.label)
+
+        given_options = self.options
+        field_type_cls = formfield_registry.get(self.field_type)
+        invalid = set(self.options.keys()) - set(field_type_cls._meta.keys())
+        if invalid:
+            for key in invalid:
+                del given_options[key]
+            self.options = given_options
+
+        super(EventField, self).save(*args, **kwargs)
 
 class EventMember(models.Model):
     event = models.ForeignKey(Event, verbose_name=u'通知')

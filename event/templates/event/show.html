@@ -1,0 +1,35 @@
+{% extends 'xadmin/views/form.html' %}
+{% load i18n %}
+{% load url from future %}
+{% load xadmin_tags %}
+
+{% block extrahead %}
+<style type="text/css">
+.event-post {
+  margin-bottom: 60px;
+  padding: 0px 5px;
+}
+.event-post-title {
+  margin-bottom: 15px;
+  font-size: 40px;
+}
+.event-post-meta {
+  margin-bottom: 20px;
+  color: #999;
+}
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+
+<div class="event-post">
+  <h3 class="event-post-title">{{ event.slug }}</h3>
+  <p class="event-post-meta">{{ event.public_time }} 由 <a href="#">{{ event.author }}</a> 发布</p>
+  {{ event.content|safe }}
+</div>
+
+{{ block.super }}
+{% endblock %}
+
