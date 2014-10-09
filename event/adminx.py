@@ -1,11 +1,12 @@
 # coding=utf-8
 import xadmin
+import json
+
 from xadmin.layout import *
-from xadmin.plugins.inline import Inline
 from DjangoUeditor.models import UEditorField
 from DjangoUeditor.widgets import UEditorWidget
-from .models import Event, EventMember, EventForm, EventField
-from django.forms import Media
+from .models import Event, EventMember, EventField
+from django.core.serializers.json import DjangoJSONEncoder
 
 
 from dynamic_forms.admin import AdminFormFieldInlineForm
@@ -19,7 +20,7 @@ class FormFieldInlineAdmin(object):
 
 class EventMemberInline(object):
     model = EventMember
-    readonly_fields = ('is_response', )
+    readonly_fields = ('is_response', 'status', 'value')
     extra = 1
 
 class EventAdmin(object):
@@ -45,9 +46,9 @@ class EventAdmin(object):
 xadmin.site.register(Event, EventAdmin)
 
 class EventMemberAdmin(object):
-    list_display = ('event', 'member', 'is_response')
-    list_filter = ('is_response',)
-    readonly_fields = ('is_response', )
+    list_display = ('event', 'member', 'status', 'is_response', 'pretty_value')
+    list_filter = ('is_response', 'status', 'member__classnum')
+    readonly_fields = ('is_response', 'status', 'value')
 
     model_icon = 'fa fa-bullhorn'
 xadmin.site.register(EventMember, EventMemberAdmin)
@@ -62,7 +63,17 @@ class EventFormView(FormAdminView):
     title = '活动通知'
 
     def init_request(self, event_id, *args, **kwargs):
-        self.form_model = Event.objects.get(id=event_id)
+        event = Event.objects.get(id=event_id)
+
+        try:
+            event_data = EventMember.objects.get(event=event, member=self.user)
+            if event_data.status > 3:
+                raise PermissionDenied
+        except EventMember.DoesNotExist:
+            raise PermissionDenied
+
+        self.form_model = event
+        self.event_data = event_data
         self.prepare_form()
 
     def get_context(self):
@@ -76,6 +87,16 @@ class EventFormView(FormAdminView):
         data = super(EventFormView, self).get_form_datas()
         data['model'] = self.form_model
         return data
+
+    def save_forms(self):
+        mapped_data = self.form_obj.get_mapped_data()
+        self.event_data.value = json.dumps(mapped_data, cls=DjangoJSONEncoder)
+        self.event_data.status = 3
+        self.event_data.is_response = True
+        self.event_data.save()
+
+    # def post_response(self):
+    #     pass
 
 xadmin.site.register_view(r'^event/show/(\d+)$', EventFormView, name='event_show')
 

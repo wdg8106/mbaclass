@@ -1,6 +1,8 @@
 # coding=utf-8
 from django.db import models
 from django.template.defaultfilters import slugify
+from django.utils.html import escape, mark_safe
+from django.utils.encoding import force_text
 
 try:  # pragma: no cover
     from collections import OrderedDict
@@ -123,13 +125,34 @@ class EventMember(models.Model):
     member = models.ForeignKey(Member, verbose_name=u'成员')
 
     is_response = models.BooleanField(u'是否已经回应', default=False)
+    status = models.SmallIntegerField(u'状态', default=1, choices=((1,'未查看'), (2,'已查看'), (3,'已提交')))
+    value = models.TextField(u'提交数据', blank=True, default='')
 
     def __unicode__(self):
-        return "%s对通知%s的应答" % (self.member, self.event)
+        return "“%s”对通知“%s”的应答" % (self.member, self.event)
 
     class Meta:
+        unique_together = ("event", "member",)
         verbose_name = '通知成员'
         verbose_name_plural = verbose_name
+
+    @property
+    def json_value(self):
+        return OrderedDict(sorted(json.loads(self.value).items()))
+
+    def pretty_value(self):
+        try:
+            output = ['<dl>']
+            for k, v in self.json_value.items():
+                output.append('<dt>%(key)s</dt><dd>%(value)s</dd>' % {
+                    'key': escape(force_text(k)),
+                    'value': escape(force_text(v)),
+                })
+            output.append('</dl>')
+            return mark_safe(''.join(output))
+        except ValueError:
+            return self.value
+    pretty_value.allow_tags = True
 
 class EventForm(models.Model):
     event = models.ForeignKey(Event, verbose_name=u'通知')
