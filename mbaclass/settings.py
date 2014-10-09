@@ -43,6 +43,7 @@ INSTALLED_APPS = (
 
     'member',
     'event',
+    'weixin',
 )
 
 MIDDLEWARE_CLASSES = (

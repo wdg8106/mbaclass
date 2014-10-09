@@ -12,7 +12,7 @@ class Member(AbstractBaseUser, PermissionsMixin):
 
     number = models.CharField(u'学号', max_length=12, help_text=u'MBA学号，例如MB1408434', null=False, blank=False, unique=True)
 
-    username = models.CharField('性名', max_length=30)
+    username = models.CharField('姓名', max_length=30)
 
     qq = models.CharField(u'QQ号码', max_length=15, null=False, blank=False)
     mobile = models.CharField(u'手机号', max_length=20, null=False, blank=False)
