@@ -3,3 +3,4 @@ django-crispy-forms>=1.4.0
 django-reversion>=1.8.3
 django-dynamic-forms>=0.3.3
 pycrypto
+DjangoUeditor

@@ -94,6 +94,10 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = '/var/www/static'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/var/www/media'
 
 
 DATE_FORMAT = 'Y-m-d'
