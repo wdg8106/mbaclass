@@ -29,6 +29,7 @@ def callback(request):
         try:
             user = Member.objects.get(number=msg['FromUserName'])
             content = u'%s 您好，您刚才输入的内容是 "%s"' % (user.username, msg['Content'])
+            #content = content.decode('utf-8').encode('GB2312')
 
             xml = wxcpt.to_xml(ToUserName=CorpID, FromUserName=user.number, CreateTime=int(time.time()), 
                 MsgType='text', Content=content, MsgId=int(msg['MsgId'])+1000, AgentID=1)
@@ -37,7 +38,8 @@ def callback(request):
                 return HttpResponse('')
             return HttpResponse(encryptMsg)
 
-        except Exception:
+        except Exception, e:
+            print e
             return HttpResponse('')
 
     

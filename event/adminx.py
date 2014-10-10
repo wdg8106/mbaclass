@@ -2,11 +2,12 @@
 import xadmin
 import json
 
-from xadmin.layout import *
+#from xadmin.layout import *
 from DjangoUeditor.models import UEditorField
 from DjangoUeditor.widgets import UEditorWidget
 from .models import Event, EventMember, EventField
 from django.core.serializers.json import DjangoJSONEncoder
+from django.core.exceptions import PermissionDenied
 
 
 from dynamic_forms.admin import AdminFormFieldInlineForm

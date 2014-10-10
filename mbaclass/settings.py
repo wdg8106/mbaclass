@@ -52,6 +52,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'weixin.auth.WeiXinAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -61,6 +62,11 @@ ROOT_URLCONF = 'mbaclass.urls'
 XADMIN_CONF = 'mbaclass.xsite'
 
 AUTH_USER_MODEL = 'member.Member'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'weixin.auth.WeiXinModelBackend',
+)
 
 WSGI_APPLICATION = 'mbaclass.wsgi.application'
 
