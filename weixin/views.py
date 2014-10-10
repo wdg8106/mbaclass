@@ -1,42 +1,43 @@
 # coding=utf-8
+import time
 from django.shortcuts import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+
 from pyweixin import WeiXin
-from WXBizMsgCrypt import WXBizMsgCrypt
+from member.models import Member
 
 CorpID = "wxe8c28e24336f65d4"
 Token = "G5EAQH0hMiWt"
 EncodingAESKey = "mTRnFdzsGY191Vy2fhm5ayHTX9vXcacfqo76ofbnfaa"
 
+@csrf_exempt
 def callback(request):
-    wxcpt = WXBizMsgCrypt(Token, EncodingAESKey, CorpID)
+    wxcpt = WeiXin(Token, EncodingAESKey, CorpID)
 
     if request.method == 'GET':
         ret, echoStr = wxcpt.VerifyURL(request.GET['msg_signature'], 
-            request.GET['timestamp'],request.GET['nonce'],request.GET['echostr'])
+            request.GET['timestamp'], request.GET['nonce'], request.GET['echostr'])
         if(ret != 0):
             return HttpResponse('')
         else:
             return HttpResponse(echoStr)
     else:
-        weixin = WeiXin.on_message(request.body)
-        j = weixin.to_json()
-        msg_type = j['MsgType']
-        message = None
+        ret, msg = wxcpt.DecryptMsg(request.body, request.GET['msg_signature'], 
+            request.GET['timestamp'], request.GET['nonce'])
+        if( ret!=0 ):
+            return HttpResponse('')
+        try:
+            user = Member.objects.get(number=msg['FromUserName'])
+            content = '%s 您好，您刚才输入的内容是 "%s"' % (user.username, msg['Content'])
 
-        if msg_type == 'text':
-            message = '您刚刚输入了 %s' % j['Content']
-        elif msg_type == 'event':
-            if j['Event'] == 'subscribe':
-                message = '欢迎加入'
+            xml = wxcpt.to_xml(ToUserName=CorpID, FromUserName=user.number, CreateTime=int(time.time()), 
+                MsgType='text', Content=content, MsgId=int(msg['MsgId']), AgentID=1)
+            ret,encryptMsg = wxcpt.EncryptMsg(xml, request.GET['nonce'], request.GET['timestamp'])
+            if( ret!=0 ):
+                return HttpResponse('')
+            return HttpResponse(encryptMsg)
 
-        if message:
-            return HttpResponse(WeiXin().to_xml(to_user_name=j['FromUserName'],
-                from_user_name=j['ToUserName'],
-                create_time=j['CreateTime'],
-                msg_type='text',
-                content=message,
-                func_flag=0))
-        else:
+        except Exception:
             return HttpResponse('')
 
     
