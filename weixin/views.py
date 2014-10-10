@@ -28,11 +28,11 @@ def callback(request):
             return HttpResponse('')
         try:
             user = Member.objects.get(number=msg['FromUserName'])
-            content = '%s 您好，您刚才输入的内容是 "%s"' % (user.username, msg['Content'])
+            content = u'%s 您好，您刚才输入的内容是 "%s"' % (user.username, msg['Content'])
 
             xml = wxcpt.to_xml(ToUserName=CorpID, FromUserName=user.number, CreateTime=int(time.time()), 
-                MsgType='text', Content=content, MsgId=int(msg['MsgId']), AgentID=1)
-            ret,encryptMsg = wxcpt.EncryptMsg(xml, request.GET['nonce'], request.GET['timestamp'])
+                MsgType='text', Content=content, MsgId=int(msg['MsgId'])+1000, AgentID=1)
+            ret,encryptMsg = wxcpt.EncryptMsg(xml, request.GET['nonce'])
             if( ret!=0 ):
                 return HttpResponse('')
             return HttpResponse(encryptMsg)

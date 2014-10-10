@@ -21,9 +21,6 @@ class WeiXin(WXBizMsgCrypt):
             j[child.tag] = value
         return j
 
-    def _to_tag(self, k):
-        return ''.join([w.capitalize() for w in k.split('_')])
-
     def _cdata(self, data):
         '''http://stackoverflow.com/questions/174890/how-to-output-cdata-using-elementtree
         '''
@@ -33,9 +30,8 @@ class WeiXin(WXBizMsgCrypt):
 
     def to_xml(self, **kwargs):
         xml = '<xml>'
-        for k in kwargs.iterkeys():
-            v = kwargs[k]
-            tag = self._to_tag(k)
+        for tag in kwargs.iterkeys():
+            v = kwargs[tag]
             xml += '<%s>%s</%s>' % (tag, self._cdata(v), tag)
         xml += '</xml>'
         return xml
