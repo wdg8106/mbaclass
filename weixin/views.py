@@ -1,20 +1,22 @@
 # coding=utf-8
-
-from django.shortcuts import render_to_response, HttpResponse, HttpResponseRedirect
-from django.template import RequestContext
+from django.shortcuts import HttpResponse
 from pyweixin import WeiXin
+from WXBizMsgCrypt import WXBizMsgCrypt
 
-def event(request):
+CorpID = "wxe8c28e24336f65d4"
+Token = "G5EAQH0hMiWt"
+EncodingAESKey = "mTRnFdzsGY191Vy2fhm5ayHTX9vXcacfqo76ofbnfaa"
+
+def callback(request):
+    wxcpt = WXBizMsgCrypt(Token, EncodingAESKey, CorpID)
+
     if request.method == 'GET':
-        weixin = WeiXin.on_connect(token='W6VMThflrgp8nFQ',
-            timestamp=request.GET['timestamp'],
-            nonce=request.GET['nonce'],
-            signature=request.GET['signature'],
-            echostr=request.GET['echostr'])
-        if weixin.validate():
-            return HttpResponse(request.GET['echostr'])
-        else:
+        ret, echoStr = wxcpt.VerifyURL(request.GET['msg_signature'], 
+            request.GET['timestamp'],request.GET['nonce'],request.GET['echostr'])
+        if(ret != 0):
             return HttpResponse('')
+        else:
+            return HttpResponse(echoStr)
     else:
         weixin = WeiXin.on_message(request.body)
         j = weixin.to_json()

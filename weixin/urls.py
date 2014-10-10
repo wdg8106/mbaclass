@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
-from .views import event
+from .views import callback
  
 urlpatterns = patterns('',
-    url(r'^event$', event, name="event"),
+    url(r'^cb$', callback, name="wx_callback"),
 )
