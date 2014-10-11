@@ -76,6 +76,7 @@ class EventFormView(FormAdminView):
 
         self.form_model = event
         self.event_data = event_data
+
         self.prepare_form()
 
     def get_context(self):
@@ -83,6 +84,9 @@ class EventFormView(FormAdminView):
         context.update({
             'event': self.form_model
         })
+        if self.request.META.get('HTTP_X_REQUESTED_WITH') == 'com.tencent.mm':
+            context['base_template'] = 'xadmin/base.html'
+            context['in_wx'] = True
         return context
 
     def get_form_datas(self):
