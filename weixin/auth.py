@@ -18,7 +18,8 @@ class WeiXinAuthenticationMiddleware(object):
 
         if request.GET.get('code') and request.GET.get('state') == '0':
             user = auth.authenticate(wx_code=request.GET['code'])
-            auth.login(request, user)
+            if hasattr(user, 'backend'):
+                auth.login(request, user)
 
 
 class WeiXinModelBackend(ModelBackend):
