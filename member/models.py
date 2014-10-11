@@ -2,11 +2,18 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 
+from sorl.thumbnail.fields import ImageWithThumbnailsField
 
 class Member(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(u'电子邮件', blank=False, unique=True)
 
-    avatar = models.ImageField(u'头像', upload_to='avatar/', blank=True)
+    avatar = ImageWithThumbnailsField(u'头像', upload_to=lambda m, name: "images/avatar/%s.%s" % (
+        m.number, name.split('.')[-1]), blank=True, null=True,
+            thumbnail={'size': (148, 148), 'extension': 'jpg'},
+            extra_thumbnails={
+                'list': {'size': (34, 34), 'options': ['crop', 'upscale'], 'extension': 'jpg'},
+                'phone': {'size': (148, 148), 'extension': 'jpg'},
+            })
 
     classnum = models.PositiveIntegerField(u'班级', choices=((1, u'一班'), (2, u'二班'), (3, u'三班'), (4, u'四班')))
 

@@ -16,7 +16,10 @@ from dynamic_forms.models import FormModel
 
 from weixin.pyweixin import wx
 
+import uuid
 from DjangoUeditor.models import UEditorField
+
+from sorl.thumbnail.fields import ImageWithThumbnailsField
 
 from dynamic_forms.actions import action_registry
 from dynamic_forms.conf import settings
@@ -26,7 +29,15 @@ from dynamic_forms.formfields import formfield_registry
 # Create your models here.
 class Event(models.Model):
     title = models.CharField(u'通知标题', max_length=200)
-    pic = models.ImageField(u'通知图标', upload_to='eventicon/', blank=True)
+
+    pic = ImageWithThumbnailsField(u'通知图标', upload_to=lambda m, name: "images/event/%s.%s" % (
+        uuid.uuid4(), name.split('.')[-1]), blank=True, null=True,
+            thumbnail={'size': (148, 148), 'extension': 'jpg'},
+            extra_thumbnails={
+                'list': {'size': (34, 34), 'options': ['crop', 'upscale'], 'extension': 'jpg'},
+                'phone': {'size': (148, 148), 'extension': 'jpg'},
+            }, )
+
     slug = models.TextField(u'通知摘要', blank=True)
     content = UEditorField(u'通知内容', height=300, toolbars="full", imagePath="event/img/", filePath="event/file/", blank=False)
 
@@ -51,7 +62,7 @@ class Event(models.Model):
     forms = models.ManyToManyField(FormModel, verbose_name=u'表单', through='EventForm', through_fields=('event', 'form'))
 
     def __unicode__(self):
-        return self.slug
+        return self.title
 
     def get_fields_as_dict(self):
         return OrderedDict(self.fields.values_list('name', 'label').all())

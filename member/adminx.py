@@ -5,7 +5,13 @@ from xadmin.layout import *
 from .models import Member
 
 class MemberAdmin(object):
-    list_display = ('number', 'avatar', 'username', 'email', 'qq', 'gender', 'title')
+
+    def show_avatar(self, event):
+        return '<img src="%s" height="30"/>' % self.avatar.url
+    show_avatar.short_description = "头像"
+    show_avatar.allow_tags = True
+
+    list_display = ('number', 'show_avatar', 'username', 'email', 'qq', 'gender', 'title')
     list_filter = ('username', 'email', 'qq', 'gender', 'classnum', 'mobile', 'birthday')
 
     search_fields = ('number', 'username', 'email')
