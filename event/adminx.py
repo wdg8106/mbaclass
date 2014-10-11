@@ -84,9 +84,6 @@ class EventFormView(FormAdminView):
         context.update({
             'event': self.form_model
         })
-        if self.request.META.get('HTTP_X_REQUESTED_WITH') == 'com.tencent.mm':
-            context['base_template'] = 'xadmin/base.html'
-            context['in_wx'] = True
         return context
 
     def get_form_datas(self):
@@ -101,8 +98,21 @@ class EventFormView(FormAdminView):
         self.event_data.is_response = True
         self.event_data.save()
 
-    # def post_response(self):
-    #     pass
+    def post_response(self):
+        msg = '您的信息已经成功提交，感谢您的支持，祝您不挂科。'
+        self.message_user(msg, 'success')
+
+        return self.get_redirect_url()
 
 xadmin.site.register_view(r'^event/show/(\d+)$', EventFormView, name='event_show')
 
+class GlobalSetting(object):
+
+    def get_context(self):
+        context = super(GlobalSetting, self).get_context()
+        if self.request.META.get('HTTP_X_REQUESTED_WITH') == 'com.tencent.mm':
+            context['base_template'] = 'base_wx.html'
+            context['in_wx'] = True
+        return context
+
+xadmin.site.register(xadmin.views.CommAdminView, GlobalSetting)

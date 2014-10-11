@@ -3,6 +3,8 @@
 {% load url from future %}
 {% load xadmin_tags %}
 
+{% block title %}{{ title }} | {{ site_title }}{% endblock %}
+
 {% block extrahead %}
 <style type="text/css">
 .event-post {
@@ -15,11 +17,15 @@
   margin-bottom: 20px;
   color: #999;
 }
+{% if in_wx %}
+body {
+  padding-bottom: 50px;
+}
+{% endif %}
 </style>
 <script type="text/javascript">
 function onBridgeReady(){
     WeixinJSBridge.call('hideOptionMenu');
-    $('#top-nav').hide();
 }
 if (typeof WeixinJSBridge == "undefined"){
     if( document.addEventListener ){
