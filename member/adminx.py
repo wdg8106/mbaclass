@@ -7,7 +7,7 @@ from .models import Member
 class MemberAdmin(object):
 
     def show_avatar(self, event):
-        return '<img src="%s" height="30"/>' % self.avatar.url
+        return event.avatar and '<img src="%s" height="30"/>' % event.avatar.url or ''
     show_avatar.short_description = "头像"
     show_avatar.allow_tags = True
 
