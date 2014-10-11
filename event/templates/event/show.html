@@ -24,7 +24,7 @@
 {% block content %}
 
 <div class="event-post">
-  <h3 class="event-post-title">{{ event.slug }}</h3>
+  <h3 class="event-post-title">{{ event.title }}</h3>
   <p class="event-post-meta">{{ event.public_time }} 由 <a href="#">{{ event.author }}</a> 发布</p>
   {{ event.content|safe }}
 </div>

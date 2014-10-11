@@ -179,10 +179,10 @@ class EventMember(models.Model):
             "agentid": "1",
             "news": {
                "articles": [{
-                   "title": e.slug[0:20],
+                   "title": e.title,
                    "description": e.slug,
                    "url": wx.auth_url('http://182.92.101.78/event/show/%d' % e.pk),
-                   "picurl": "http://www.sucai123.com/sucai/img2/193/064.jpg"
+                   "picurl": e.pic and e.pic.url or "http://www.sucai123.com/sucai/img2/193/064.jpg"
                }]
             }
         })
