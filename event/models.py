@@ -75,10 +75,7 @@ class EventField(models.Model):
         verbose_name_plural = verbose_name
 
     def __str__(self):
-        return '通知“%(event_name)s”中的“%(field_name)s”字段' % {
-            'field_name': self.label,
-            'event_name': self.event,
-        }
+        return self.label
 
     def generate_form_field(self, form):
         field_type_cls = formfield_registry.get(self.field_type)
@@ -137,12 +134,12 @@ class EventMember(models.Model):
 
     value = models.TextField(u'提交数据', blank=True, default='')
 
-    def __unicode__(self):
-        return "“%s”对通知“%s”的应答" % (self.member, self.event)
+    def __str__(self):
+        return str(self.member)
 
     class Meta:
         unique_together = ("event", "member",)
-        verbose_name = '通知成员'
+        verbose_name = '通知反馈'
         verbose_name_plural = verbose_name
 
     @property

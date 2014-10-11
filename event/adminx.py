@@ -21,7 +21,8 @@ class FormFieldInlineAdmin(object):
 
 class EventMemberInline(object):
     model = EventMember
-    readonly_fields = ('is_response', 'status', 'value')
+    style = 'table'
+    readonly_fields = ('is_response', 'status', 'value', 'is_send_wx', 'is_send_sms')
     extra = 1
 
 class EventAdmin(object):
@@ -31,8 +32,8 @@ class EventAdmin(object):
     show_page.short_description = "查看"
     show_page.allow_tags = True
 
-    list_display = ('slug', 'public_time', 'start_time', 'end_time', 'author', 'is_active', 'show_page')
-    list_filter = ('public_time', 'start_time', 'end_time', 'author', 'is_active')
+    list_display = ('title', 'event_type', 'public_time', 'start_time', 'end_time', 'author', 'is_active', 'show_page')
+    list_filter = ('public_time', 'event_type', 'public_time', 'start_time', 'end_time', 'author', 'is_active')
 
     search_fields = ('slug',)
 
@@ -47,9 +48,9 @@ class EventAdmin(object):
 xadmin.site.register(Event, EventAdmin)
 
 class EventMemberAdmin(object):
-    list_display = ('event', 'member', 'status', 'is_response', 'pretty_value')
+    list_display = ('event', 'member', 'status', 'is_response', 'is_send_wx', 'is_send_sms', 'pretty_value')
     list_filter = ('is_response', 'status', 'member__classnum')
-    readonly_fields = ('is_response', 'status', 'value')
+    readonly_fields = ('is_response', 'status', 'value', 'is_send_wx', 'is_send_sms')
 
     model_icon = 'fa fa-bullhorn'
 xadmin.site.register(EventMember, EventMemberAdmin)
