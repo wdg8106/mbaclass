@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 
 import httplib, json
-from .pyweixin import token
+from .pyweixin import wx
 
 getUserInfoUri = '/cgi-bin/user/getuserinfo?access_token=%s&code=%s&agentid=%d'
 
@@ -28,7 +28,7 @@ class WeiXinModelBackend(ModelBackend):
         UserModel = get_user_model()
         try:
             httpClient = httplib.HTTPSConnection('qyapi.weixin.qq.com', 443, timeout=30)
-            httpClient.request('GET', getUserInfoUri % (token, wx_code, 1))
+            httpClient.request('GET', getUserInfoUri % (wx.token('sendMsg'), wx_code, 1))
          
             response = httpClient.getresponse()
             userId = json.loads(response.read())['UserId']

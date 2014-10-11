@@ -14,6 +14,8 @@ import json
 from member.models import Member
 from dynamic_forms.models import FormModel
 
+from weixin.pyweixin import wx
+
 from DjangoUeditor.models import UEditorField
 
 from dynamic_forms.actions import action_registry
@@ -23,10 +25,14 @@ from dynamic_forms.formfields import formfield_registry
 
 # Create your models here.
 class Event(models.Model):
-    slug = models.CharField(u'通知摘要', max_length=200)
+    title = models.CharField(u'通知标题', max_length=200)
+    pic = models.ImageField(u'通知图标', upload_to='eventicon/', blank=True)
+    slug = models.TextField(u'通知摘要', blank=True)
     content = UEditorField(u'通知内容', height=300, toolbars="full", imagePath="event/img/", filePath="event/file/", blank=False)
 
     public_time = models.DateTimeField(u'发布时间', auto_now=True)
+
+    event_type = models.CharField(u'通知类型', max_length=20, choices=(('notic', u'通知'), ('poll', u'投票'), ('sign', u'报名'), ('info', u'填表'), ('other', u'其它')))
 
     start_time = models.DateTimeField(u'开始时间')
     end_time = models.DateTimeField(u'结束时间')
@@ -126,6 +132,9 @@ class EventMember(models.Model):
 
     is_response = models.BooleanField(u'是否已经回应', default=False)
     status = models.SmallIntegerField(u'状态', default=1, choices=((1,'未查看'), (2,'已查看'), (3,'已提交')))
+    is_send_wx = models.BooleanField(u'已发送微信', default=False)
+    is_send_sms = models.BooleanField(u'已发送短信', default=False)
+
     value = models.TextField(u'提交数据', blank=True, default='')
 
     def __unicode__(self):
@@ -153,6 +162,29 @@ class EventMember(models.Model):
         except ValueError:
             return self.value
     pretty_value.allow_tags = True
+
+    def send_wx(self):
+        e = self.event
+        wx.send_msg({
+            "touser": self.member.number,
+            "msgtype": "news",
+            "agentid": "1",
+            "news": {
+               "articles": [{
+                   "title": e.slug[0:20],
+                   "description": e.slug,
+                   "url": wx.auth_url('http://182.92.101.78/event/show/%d' % e.pk),
+                   "picurl": "http://www.sucai123.com/sucai/img2/193/064.jpg"
+               }]
+            }
+        })
+        self.is_send_wx = True
+
+    def save(self, *args, **kwargs):
+        if not self.is_send_wx and self.event.use_weixin:
+            # 发送微信
+            self.send_wx()
+        super(EventMember, self).save(*args, **kwargs)
 
 class EventForm(models.Model):
     event = models.ForeignKey(Event, verbose_name=u'通知')
