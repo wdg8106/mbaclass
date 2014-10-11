@@ -3,19 +3,23 @@
 {% load url from future %}
 {% load firstof from future %}
 
-{% block top-nav %}{{ title }} | {{ site_title }}{% endblock %}
+{% block title %}{{ title }} | {{ site_title }}{% endblock %}
 
-{% block content %}
-  {% block messages %}
-  {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-dismissable{% if message.tags %} {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %}{% endif %}">
-      <button type="button" class="close" data-dismiss="alert">&times;</button>
-      {{ message|safe }}
-    </div>
-    {% endfor %}
-  {% endif %}
-  {% endblock messages %}
+{% block body %}
+  <div id="content-block" class="col-sm-12" style="padding-top: 20px;">
+    {% block messages %}
+    {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-dismissable{% if message.tags %} {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %}{% endif %}">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message|safe }}
+      </div>
+      {% endfor %}
+    {% endif %}
+    {% endblock messages %}
 
-  {{ content }}
-{% endblock content %}
+    {% block content %}
+    {{ content }}
+    {% endblock %}
+  </div>
+{% endblock body %}
