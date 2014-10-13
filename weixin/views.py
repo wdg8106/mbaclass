@@ -12,14 +12,14 @@ def callback(request):
     if request.method == 'GET':
         ret, echoStr = wx.VerifyURL(request.GET['msg_signature'], 
             request.GET['timestamp'], request.GET['nonce'], request.GET['echostr'])
-        if(ret != 0):
+        if ret != 0:
             return HttpResponse('')
         else:
             return HttpResponse(echoStr)
     else:
         ret, msg = wx.DecryptMsg(request.body, request.GET['msg_signature'], 
             request.GET['timestamp'], request.GET['nonce'])
-        if( ret!=0 ):
+        if ret != 0:
             return HttpResponse('')
 
         try:
