@@ -53,6 +53,9 @@ class EventMemberAdmin(object):
     readonly_fields = ('is_response', 'status', 'value', 'is_send_wx', 'is_send_sms')
 
     model_icon = 'fa fa-bullhorn'
+
+    user_can_access_owned_objects_only = True
+    user_owned_objects_field = 'member'
 xadmin.site.register(EventMember, EventMemberAdmin)
 
 

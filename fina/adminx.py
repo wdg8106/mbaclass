@@ -19,6 +19,9 @@ class MemberAccountAdmin(object):
     search_fields = ('member__number', 'member__username')
     model_icon = 'fa fa-credit-card'
     relfield_style = 'fk-ajax'
+    
+    user_can_access_owned_objects_only = True
+    user_owned_objects_field = 'member'
 xadmin.site.register(MemberAccount, MemberAccountAdmin)
 
 class AccountDetailAdmin(object):
@@ -26,6 +29,9 @@ class AccountDetailAdmin(object):
     list_filter = ('member_account__account', 'member_account__member', 'charge', 'charge_time', 'event')
     search_fields = ('title',)
     model_icon = 'fa fa-table'
+
+    user_can_access_owned_objects_only = True
+    user_owned_objects_field = 'member_account__member'
 xadmin.site.register(AccountDetail, AccountDetailAdmin)
 
 class MembersField(forms.CharField):

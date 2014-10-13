@@ -46,6 +46,9 @@ class AccountDetail(models.Model):
     note = models.TextField(u'备注', null=True, blank=True)
     event = models.ForeignKey(Event, verbose_name=u'活动', null=True, blank=True)
 
+    def __unicode__(self):
+        return unicode(self.member_account.member) + '的账户明细'
+
     def save(self, *args, **kwargs):
         with atomic():
             if not self.pk:
