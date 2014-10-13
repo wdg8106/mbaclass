@@ -57,8 +57,12 @@ class AccountDetail(models.Model):
         verbose_name = '账户记录'
         verbose_name_plural = verbose_name
 
-def charge(account, member, amount, title, event=None, note=None):
+def charge(account, member, amount, title, charge_date=None, event=None, note=None):
     am, created = MemberAccount.objects.get_or_create(account=account, member=member)
-    AccountDetail(member_account=am, charge=charge, charge_time=datetime.datetime.now(), title=title, \
+    AccountDetail(member_account=am, charge=amount, charge_time=charge_date or datetime.datetime.now(), title=title, \
         note=note, event=event).save()
+
+def charges(account, members, amount, title, charge_date=None, event=None, note=None):
+    for m in members:
+        charge(account, m, amount, title, charge_date, event, note)
 
