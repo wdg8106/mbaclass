@@ -115,32 +115,32 @@ if __name__ == '__main__':
     #     },
     #     "safe":"0"
     # })
-    print wx.get_users(2)
+    # print wx.get_users(2)
 
-    # wx.send_msg({
-    #    "touser": "MB1408435",
-    #    "msgtype": "news",
-    #    "agentid": "1",
-    #    "news": {
-    #        "articles":[
-    #            {
-    #                "title": "北航经管学院2014年专项奖学金评定",
-    #                "description": "2014年专项奖学金的评选工作已开始，评奖范围为硕士2、3年级、博士2、3、4年级（具体要求参见附件）。原则上，每名学生在校期间只能获得一次同类专项奖学金（不包括研究生学业奖学金），不能重复获得，获得国家奖学金的同学原则上不再获得其他奖学金。本次评定工作分为两部分，光华奖学金采用名额下放、班级推荐的形式，其他专项奖学金采用个人申报、学院统一评定的形式，现将具体的评定方法公布如下：",
-    #                "url": 'https://open.weixin.qq.com/connect/oauth2/authorize?' + 
-    #                     'appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=0#wechat_redirect' % 
-    #                     (CorpID, urllib.quote_plus('http://182.92.101.78/event/show/1')),
-    #                "picurl": "http://www.sucai123.com/sucai/img2/193/064.jpg"
-    #            },
-    #            {
-    #                "title": "北航经管学院2014年专项奖学金评定",
-    #                "description": "2014年专项奖学金的评选工作已开始，评奖范围为硕士2、3年级、博士2、3、4年级（具体要求参见附件）。原则上，每名学生在校期间只能获得一次同类专项奖学金（不包括研究生学业奖学金），不能重复获得，获得国家奖学金的同学原则上不再获得其他奖学金。本次评定工作分为两部分，光华奖学金采用名额下放、班级推荐的形式，其他专项奖学金采用个人申报、学院统一评定的形式，现将具体的评定方法公布如下：",
-    #                "url": 'https://open.weixin.qq.com/connect/oauth2/authorize?' + 
-    #                     'appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=0#wechat_redirect' % 
-    #                     (CorpID, urllib.quote_plus('http://182.92.101.78/event/show/1')),
-    #                "picurl": "http://www.sucai123.com/sucai/img2/193/064.jpg"
-    #            }
-    #        ]
-    #    }
-    # })
+    wx.send_msg({
+       "touser": "MB1408435",
+       "msgtype": "news",
+       "agentid": "1",
+       "news": {
+           "articles":[
+               {
+                   "title": "北航经管学院2014年专项奖学金评定",
+                   "description": "2014年专项奖学金的评选工作已开始，评奖范围为硕士2、3年级、博士2、3、4年级（具体要求参见附件）。原则上，每名学生在校期间只能获得一次同类专项奖学金（不包括研究生学业奖学金），不能重复获得，获得国家奖学金的同学原则上不再获得其他奖学金。本次评定工作分为两部分，光华奖学金采用名额下放、班级推荐的形式，其他专项奖学金采用个人申报、学院统一评定的形式，现将具体的评定方法公布如下：",
+                   "url": 'https://open.weixin.qq.com/connect/oauth2/authorize?' + 
+                        'appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=0#wechat_redirect' % 
+                        (CorpID, urllib.quote_plus('http://182.92.101.78/event/show/1')),
+                   "picurl": "http://www.sucai123.com/sucai/img2/193/064.jpg"
+               },
+               {
+                   "title": u"北航经管学院204年专项奖学金评定",
+                   "description": "2014年专项奖学金的评选工作已开始，评奖范围为硕士2、3年级、博士2、3、4年级（具体要求参见附件）。原则上，每名学生在校期间只能获得一次同类专项奖学金（不包括研究生学业奖学金），不能重复获得，获得国家奖学金的同学原则上不再获得其他奖学金。本次评定工作分为两部分，光华奖学金采用名额下放、班级推荐的形式，其他专项奖学金采用个人申报、学院统一评定的形式，现将具体的评定方法公布如下：",
+                   "url": 'https://open.weixin.qq.com/connect/oauth2/authorize?' + 
+                        'appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=0#wechat_redirect' % 
+                        (CorpID, urllib.quote_plus('http://182.92.101.78/event/show/1')),
+                   "picurl": "http://www.sucai123.com/sucai/img2/193/064.jpg"
+               }
+           ]
+       }
+    })
 
 
