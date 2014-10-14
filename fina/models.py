@@ -41,10 +41,11 @@ class MemberAccount(models.Model):
 class AccountDetail(models.Model):
     member_account = models.ForeignKey(MemberAccount, verbose_name=u'账户')
     charge = models.DecimalField(u'金额', max_digits=10, decimal_places=2)
-    charge_time = models.DateTimeField(u'时间')
+    charge_time = models.DateField(u'时间')
     title = models.CharField(u'名称', max_length=200)
     note = models.TextField(u'备注', null=True, blank=True)
     event = models.ForeignKey(Event, verbose_name=u'活动', null=True, blank=True)
+    record_time = models.DateTimeField(u'记录时间', auto_now=True)
 
     def __unicode__(self):
         return unicode(self.member_account.member) + '的账户明细'
@@ -62,7 +63,7 @@ class AccountDetail(models.Model):
 
 def charge(account, member, amount, title, charge_date=None, event=None, note=None):
     am, created = MemberAccount.objects.get_or_create(account=account, member=member)
-    AccountDetail(member_account=am, charge=amount, charge_time=charge_date or datetime.datetime.now(), title=title, \
+    AccountDetail(member_account=am, charge=amount, charge_time=charge_date or datetime.date.today(), title=title, \
         note=note, event=event).save()
 
 def charges(account, members, amount, title, charge_date=None, event=None, note=None):
