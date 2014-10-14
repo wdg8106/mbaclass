@@ -84,3 +84,22 @@ class AccountFormView(FormAdminView):
         return self.get_redirect_url()
 
 xadmin.site.register_view(r'^fina/bat$', AccountFormView, name='fina_bat')
+
+class AccountChargeForm(forms.Form):
+    account = forms.IntegerField(label=u'选择账户', required=True)
+    amount = forms.DecimalField(label=u'充值金额', required=True, max_digits=10, decimal_places=2)
+
+class AccountChargeView(FormAdminView):
+    form = AccountChargeForm
+    title = '账户充值'
+
+    def save_forms(self):
+        data = self.form_obj.cleaned_data
+
+    def post_response(self):
+        msg = u'非常抱歉，支付接口正在申请中，该功能暂时无法使用。'
+        self.message_user(msg, 'error')
+
+        return self.get_redirect_url()
+
+xadmin.site.register_view(r'^fina/charge$', AccountChargeView, name='fina_charge')
