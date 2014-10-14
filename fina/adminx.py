@@ -30,6 +30,7 @@ class AccountDetailAdmin(object):
     search_fields = ('title',)
     model_icon = 'fa fa-table'
 
+    aggregate_fields = {"charge": "sum"}
     user_can_access_owned_objects_only = True
     user_owned_objects_field = 'member_account__member'
 xadmin.site.register(AccountDetail, AccountDetailAdmin)
