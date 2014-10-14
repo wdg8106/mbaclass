@@ -2,6 +2,11 @@
 import json, time, os
 import httplib, urllib, urllib2
 import xml.etree.ElementTree as ET
+
+from member.models import Member
+from event.models import Event
+from fina.models import MemberAccount
+
 try:
     from WXBizMsgCrypt import WXBizMsgCrypt
 except Exception:
@@ -76,7 +81,7 @@ class WeiXin(WXBizMsgCrypt):
     def send_msg(self, msg):
         try:
             headers = {"Accept": "text/plain"}
-            
+            print json.dumps(msg, ensure_ascii=False)
             httpClient = httplib.HTTPSConnection("qyapi.weixin.qq.com", 443, timeout=30)
             httpClient.request("POST", "/cgi-bin/message/send?access_token=%s" % self.token('sendMsg'), json.dumps(msg, ensure_ascii=False), headers)
          
@@ -100,6 +105,52 @@ class WeiXin(WXBizMsgCrypt):
             % (self.token('sendMsg'), userId))
         return json.loads(res.read())
 
+    def send_event(self, event, force_send=False):
+        if force_send or not event.is_send_wx:
+            e = event.event
+            self.send_msg({
+                "touser": event.member.number,
+                "msgtype": "news",
+                "agentid": "1",
+                "news": {
+                   "articles": [{
+                       "title": e.slug[0:20].encode('utf-8'),
+                       "description": e.slug.encode('utf-8'),
+                       "url": wx.auth_url('http://182.92.101.78/event/show/%d' % e.pk),
+                       "picurl": e.pic and e.pic.url or "http://www.sucai123.com/sucai/img2/193/064.jpg"
+                   }]
+                }
+            })
+            event.is_send_wx = True
+
+    def new_events(self, member):
+        articles = [{
+           "title": e.slug[0:20].encode('utf-8'),
+           "description": e.slug.encode('utf-8'),
+           "url": wx.auth_url('http://182.92.101.78/event/show/%d' % e.pk),
+            "picurl": e.pic and e.pic.url or "http://www.sucai123.com/sucai/img2/193/064.jpg"
+        } for e in Event.objects.filter(is_active=True).order_by('-public_time')[0:8]]
+
+        self.send_msg({
+            "touser": member.number,
+            "msgtype": "news",
+            "agentid": "1",
+            "news": {
+               "articles": articles
+            }
+        })
+
+    def my_account(self, member):
+        accs = MemberAccount.objects.filter(member=member)
+        content = u'您的账户余额为:\n' + '\n'.join([u'%s: %.02f元' % (a.account.name, a.amount) for a in accs])
+        self.send_msg({
+           "touser": "MB1408435",
+            "msgtype": "text",
+            "agentid": "2",
+            "text": {
+                "content": content.encode('utf-8')
+            }
+        })
 
 wx = WeiXin(Token, EncodingAESKey, CorpID)
 
@@ -117,30 +168,38 @@ if __name__ == '__main__':
     # })
     # print wx.get_users(2)
 
+    # wx.send_msg({
+    #    "touser": "MB1408435",
+    #    "msgtype": "news",
+    #    "agentid": "2",
+    #    "news": {
+    #        "articles":[
+    #            {
+    #                "title": "北航经管学院2014年专项奖学金评定",
+    #                "description": "2014年专项奖学金的评选工作已开始，评奖范围为硕士2、3年级、博士2、3、4年级（具体要求参见附件）。原则上，每名学生在校期间只能获得一次同类专项奖学金（不包括研究生学业奖学金），不能重复获得，获得国家奖学金的同学原则上不再获得其他奖学金。本次评定工作分为两部分，光华奖学金采用名额下放、班级推荐的形式，其他专项奖学金采用个人申报、学院统一评定的形式，现将具体的评定方法公布如下：",
+    #                "url": 'https://open.weixin.qq.com/connect/oauth2/authorize?' + 
+    #                     'appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=0#wechat_redirect' % 
+    #                     (CorpID, urllib.quote_plus('http://182.92.101.78/event/show/1')),
+    #                "picurl": "http://www.sucai123.com/sucai/img2/193/064.jpg"
+    #            },
+    #            {
+    #                "title": u"北航经管学院204年专项奖学金评定",
+    #                "description": "2014年专项奖学金的评选工作已开始，评奖范围为硕士2、3年级、博士2、3、4年级（具体要求参见附件）。原则上，每名学生在校期间只能获得一次同类专项奖学金（不包括研究生学业奖学金），不能重复获得，获得国家奖学金的同学原则上不再获得其他奖学金。本次评定工作分为两部分，光华奖学金采用名额下放、班级推荐的形式，其他专项奖学金采用个人申报、学院统一评定的形式，现将具体的评定方法公布如下：",
+    #                "url": 'https://open.weixin.qq.com/connect/oauth2/authorize?' + 
+    #                     'appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=0#wechat_redirect' % 
+    #                     (CorpID, urllib.quote_plus('http://182.92.101.78/event/show/1')),
+    #                "picurl": "http://www.sucai123.com/sucai/img2/193/064.jpg"
+    #            }
+    #        ]
+    #    }
+    # })
+
     wx.send_msg({
        "touser": "MB1408435",
-       "msgtype": "news",
-       "agentid": "1",
-       "news": {
-           "articles":[
-               {
-                   "title": "北航经管学院2014年专项奖学金评定",
-                   "description": "2014年专项奖学金的评选工作已开始，评奖范围为硕士2、3年级、博士2、3、4年级（具体要求参见附件）。原则上，每名学生在校期间只能获得一次同类专项奖学金（不包括研究生学业奖学金），不能重复获得，获得国家奖学金的同学原则上不再获得其他奖学金。本次评定工作分为两部分，光华奖学金采用名额下放、班级推荐的形式，其他专项奖学金采用个人申报、学院统一评定的形式，现将具体的评定方法公布如下：",
-                   "url": 'https://open.weixin.qq.com/connect/oauth2/authorize?' + 
-                        'appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=0#wechat_redirect' % 
-                        (CorpID, urllib.quote_plus('http://182.92.101.78/event/show/1')),
-                   "picurl": "http://www.sucai123.com/sucai/img2/193/064.jpg"
-               },
-               {
-                   "title": u"北航经管学院204年专项奖学金评定",
-                   "description": "2014年专项奖学金的评选工作已开始，评奖范围为硕士2、3年级、博士2、3、4年级（具体要求参见附件）。原则上，每名学生在校期间只能获得一次同类专项奖学金（不包括研究生学业奖学金），不能重复获得，获得国家奖学金的同学原则上不再获得其他奖学金。本次评定工作分为两部分，光华奖学金采用名额下放、班级推荐的形式，其他专项奖学金采用个人申报、学院统一评定的形式，现将具体的评定方法公布如下：",
-                   "url": 'https://open.weixin.qq.com/connect/oauth2/authorize?' + 
-                        'appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=0#wechat_redirect' % 
-                        (CorpID, urllib.quote_plus('http://182.92.101.78/event/show/1')),
-                   "picurl": "http://www.sucai123.com/sucai/img2/193/064.jpg"
-               }
-           ]
-       }
+        "msgtype": "text",
+        "agentid": "2",
+        "text": {
+            "content": u'您的账户余额为'.encode('utf-8')
+        }
     })
-
 

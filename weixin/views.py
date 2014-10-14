@@ -4,7 +4,6 @@ from django.views.decorators.csrf import csrf_exempt
 
 from pyweixin import wx
 from member.models import Member
-from event.models import Event
 
 @csrf_exempt
 def callback(request):
@@ -30,21 +29,9 @@ def callback(request):
         if msg['MsgType'] == 'event':
             # 点击按钮事件
             if msg['EventKey'] == 'NEW_EVENT':
-                articles = [{
-                   "title": e.slug[0:20],
-                   "description": e.slug,
-                   "url": wx.auth_url('http://182.92.101.78/event/show/%d' % e.pk),
-                   "picurl": "http://www.sucai123.com/sucai/img2/193/064.jpg"
-                } for e in Event.objects.filter(is_active=True).order_by('-public_time')[0:8]]
+                wx.new_events(user)
+            elif msg['EventKey'] == 'MY_ACCOUNT':
+                wx.my_account(user)
 
-                wx.send_msg({
-                    "touser": user.number,
-                    "msgtype": "news",
-                    "agentid": "1",
-                    "news": {
-                       "articles": articles
-                    }
-                })
-        
         return HttpResponse('')
     
