@@ -144,7 +144,7 @@ class WeiXin(WXBizMsgCrypt):
         accs = MemberAccount.objects.filter(member=member)
         content = u'您的账户余额为:\n' + '\n'.join([u'%s: %.02f元' % (a.account.name, a.amount) for a in accs])
         self.send_msg({
-           "touser": "MB1408435",
+            "touser": member.number,
             "msgtype": "text",
             "agentid": "2",
             "text": {
