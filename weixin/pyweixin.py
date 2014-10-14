@@ -81,9 +81,8 @@ class WeiXin(WXBizMsgCrypt):
     def send_msg(self, msg):
         try:
             headers = {"Accept": "text/plain"}
-            print json.dumps(msg, ensure_ascii=False)
             httpClient = httplib.HTTPSConnection("qyapi.weixin.qq.com", 443, timeout=30)
-            httpClient.request("POST", "/cgi-bin/message/send?access_token=%s" % self.token('sendMsg'), json.dumps(msg, ensure_ascii=False), headers)
+            httpClient.request("POST", "/cgi-bin/message/send?access_token=%s" % self.token('sendMsg'), json.dumps(msg, ensure_ascii=False).encode('utf-8'), headers)
          
             response = httpClient.getresponse()
             print response.status
@@ -114,8 +113,8 @@ class WeiXin(WXBizMsgCrypt):
                 "agentid": "1",
                 "news": {
                    "articles": [{
-                       "title": e.title.encode('utf-8'),
-                       "description": e.slug.encode('utf-8'),
+                       "title": e.title,
+                       "description": e.slug,
                        "url": wx.auth_url('http://182.92.101.78/event/show/%d' % e.pk),
                        "picurl": e.pic and e.pic.url or "http://www.sucai123.com/sucai/img2/193/064.jpg"
                    }]
@@ -125,8 +124,8 @@ class WeiXin(WXBizMsgCrypt):
 
     def new_events(self, member):
         articles = [{
-           "title": e.title.encode('utf-8'),
-           "description": e.slug.encode('utf-8'),
+           "title": e.title,
+           "description": e.slug,
            "url": wx.auth_url('http://182.92.101.78/event/show/%d' % e.pk),
             "picurl": e.pic and e.pic.url or "http://www.sucai123.com/sucai/img2/193/064.jpg"
         } for e in Event.objects.filter(is_active=True).order_by('-public_time')[0:8]]
@@ -148,7 +147,7 @@ class WeiXin(WXBizMsgCrypt):
             "msgtype": "text",
             "agentid": "2",
             "text": {
-                "content": content.encode('utf-8')
+                "content": content
             }
         })
 
