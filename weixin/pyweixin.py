@@ -114,7 +114,7 @@ class WeiXin(WXBizMsgCrypt):
                 "agentid": "1",
                 "news": {
                    "articles": [{
-                       "title": e.slug[0:20].encode('utf-8'),
+                       "title": e.title.encode('utf-8'),
                        "description": e.slug.encode('utf-8'),
                        "url": wx.auth_url('http://182.92.101.78/event/show/%d' % e.pk),
                        "picurl": e.pic and e.pic.url or "http://www.sucai123.com/sucai/img2/193/064.jpg"
@@ -125,7 +125,7 @@ class WeiXin(WXBizMsgCrypt):
 
     def new_events(self, member):
         articles = [{
-           "title": e.slug[0:20].encode('utf-8'),
+           "title": e.title.encode('utf-8'),
            "description": e.slug.encode('utf-8'),
            "url": wx.auth_url('http://182.92.101.78/event/show/%d' % e.pk),
             "picurl": e.pic and e.pic.url or "http://www.sucai123.com/sucai/img2/193/064.jpg"

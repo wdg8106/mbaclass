@@ -24,7 +24,7 @@ from dynamic_forms.formfields import formfield_registry
 
 # Create your models here.
 
-def pic_upload_to(self, m, name):
+def pic_upload_to(m, name):
     return "images/event/%s.%s" % (uuid.uuid4(), name.split('.')[-1])
         
 class Event(models.Model):

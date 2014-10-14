@@ -102,7 +102,7 @@ USE_TZ = False
 STATIC_URL = '/static/'
 STATIC_ROOT = '/var/www/static'
 
-MEDIA_URL = '/media/'
+MEDIA_URL = 'http://182.92.101.78/media/'
 MEDIA_ROOT = '/var/www/media'
 
 
