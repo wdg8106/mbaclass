@@ -9,6 +9,7 @@ except ImportError:  # pragma: no cover
 
 from member.models import Member
 from event.models import Event
+from weixin.pyweixin import wx
 
 class Account(models.Model):
     name = models.CharField(u'账户名称', max_length=64)
@@ -46,6 +47,7 @@ class AccountDetail(models.Model):
     note = models.TextField(u'备注', null=True, blank=True)
     event = models.ForeignKey(Event, verbose_name=u'活动', null=True, blank=True)
     record_time = models.DateTimeField(u'记录时间', auto_now=True)
+    is_send_wx = models.BooleanField(u'已微信通知', default=False)
 
     def __unicode__(self):
         return unicode(self.member_account.member) + '的账户明细'
@@ -55,6 +57,21 @@ class AccountDetail(models.Model):
             if not self.pk:
                 self.member_account.amount += self.charge
                 self.member_account.save()
+
+            if not self.is_send_wx:
+                mode = (self.charge > 0)
+                content = u'您的账户%s刚刚%s%.2f元，用于%s，账户余额为%.2f元。\n您可以查看账户明细了解更多信息，如有疑问请联系班委。' % \
+                    (str(self.member_account.account), (mode and u'充入' or u'扣除'), self.charge, self.title, self.member_account.amount)
+                wx.send_msg({
+                    "touser": self.member_account.member.number,
+                    "msgtype": "text",
+                    "agentid": "2",
+                    "text": {
+                        "content": content
+                    }
+                })
+                self.is_send_wx = True
+
             super(AccountDetail, self).save(*args, **kwargs)
 
     class Meta:

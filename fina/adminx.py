@@ -1,5 +1,6 @@
 # coding=utf-8
 import xadmin
+import re
 from django import forms
 from django.core.exceptions import ValidationError
 from xadmin.views.form import FormAdminView
@@ -25,7 +26,7 @@ class MemberAccountAdmin(object):
 xadmin.site.register(MemberAccount, MemberAccountAdmin)
 
 class AccountDetailAdmin(object):
-    list_display = ('member_account', 'charge', 'charge_time', 'title', 'event')
+    list_display = ('member_account', 'charge', 'charge_time', 'title', 'is_send_wx', 'event')
     list_filter = ('member_account__account', 'member_account__member', 'charge', 'charge_time', 'event')
     search_fields = ('title',)
     model_icon = 'fa fa-table'
@@ -39,7 +40,8 @@ class MembersField(forms.CharField):
 
     def to_python(self, value):
         ms = []
-        for n in value.split(','):
+        for n in re.split('[,\t\n]',value):
+            n = n.replace('\n','').replace('\r','').replace('\t','').replace(',','')
             try:
                 ms.append(Member.objects.get(number=n))
             except Exception:

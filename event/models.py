@@ -12,6 +12,7 @@ except ImportError:  # pragma: no cover
 import json
 
 from member.models import Member
+from weixin.pyweixin import wx
 from dynamic_forms.models import FormModel
 
 import uuid
@@ -168,7 +169,21 @@ class EventMember(models.Model):
     def save(self, *args, **kwargs):
         if not self.is_send_wx and self.event.use_weixin:
             # 发送微信
-            self.send_wx()
+            e = self.event
+            wx.send_msg({
+                "touser": self.member.number,
+                "msgtype": "news",
+                "agentid": "1",
+                "news": {
+                   "articles": [{
+                       "title": e.title,
+                       "description": e.slug,
+                       "url": wx.auth_url('http://182.92.101.78/event/show/%d' % e.pk),
+                       "picurl": e.pic and e.pic.url or "http://www.sucai123.com/sucai/img2/193/064.jpg"
+                   }]
+                }
+            })
+            self.is_send_wx = True
         super(EventMember, self).save(*args, **kwargs)
 
 class EventForm(models.Model):
