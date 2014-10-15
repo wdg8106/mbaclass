@@ -32,7 +32,7 @@ class MemberAccount(models.Model):
     amount = models.DecimalField(u'账户余额', max_digits=10, decimal_places=2, default=0)
 
     def __unicode__(self):
-        return u'%s在%s中的账户' % (self.member.username, self.account.name)
+        return u'%s的%s账户' % (self.member.username, self.account.name)
 
     class Meta:
         unique_together = ("account", "member",)
@@ -73,6 +73,12 @@ class AccountDetail(models.Model):
                 self.is_send_wx = True
 
             super(AccountDetail, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        with atomic():
+            self.member_account.amount -= self.charge
+            self.member_account.save()
+            super(AccountDetail, self).delete(*args, **kwargs)
 
     class Meta:
         verbose_name = '账户记录'
