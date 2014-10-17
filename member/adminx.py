@@ -1,6 +1,8 @@
 # coding=utf-8
+from django import forms
 import xadmin
-from xadmin.layout import *
+from xadmin.layout import TabHolder, Tab, Fieldset
+from xadmin.forms import AdminAuthenticationForm
 
 from .models import Member
 
@@ -56,3 +58,18 @@ try:
 except Exception, e:
     pass
 xadmin.site.register(Member, MemberAdmin)
+
+class MBANumberField(forms.CharField):
+
+    def to_python(self, value):
+        value = super(MBANumberField, self).to_python(value)
+        return value.upper()
+
+class MBAAdminAuthenticationForm(AdminAuthenticationForm):
+    username = MBANumberField(max_length=254, label="学号")
+
+class LoginSetting(object):
+    title = '北航MBA信息管理系统'
+    login_form = MBAAdminAuthenticationForm
+    login_template = 'mbaclass/login.html'
+xadmin.site.register(xadmin.views.LoginView, LoginSetting)
