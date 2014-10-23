@@ -30,6 +30,7 @@ class AccountDetailAdmin(object):
     list_filter = ('member_account__account', 'member_account__member', 'charge', 'charge_time', 'event')
     search_fields = ('title',)
     model_icon = 'fa fa-table'
+    delete_models_batch = False
 
     aggregate_fields = {"charge": "sum"}
     user_can_access_owned_objects_only = True

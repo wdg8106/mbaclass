@@ -2,6 +2,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 
+import mptt
+from mptt.fields import TreeForeignKey, TreeOneToOneField, TreeManyToManyField
+from mptt.models import MPTTModel
+from mptt.managers import TreeManager
+
 def avatar_upload_to(m, name):
     return "images/avatar/%s.%s" % (m.number, name.split('.')[-1])
         
@@ -48,5 +53,21 @@ class Member(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         verbose_name = '成员'
+        verbose_name_plural = verbose_name
+
+
+class Department(MPTTModel):
+    name = models.CharField(u'名称', max_length=50, unique=True)
+    parent = TreeForeignKey('self', verbose_name=u'父级部门', null=True, blank=True, related_name='children')
+    members = models.ManyToManyField(Member, verbose_name=u'部门成员', related_name='departments', null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    def display_name(self):
+        return ('---' * self.level) + self.name
+
+    class Meta:
+        verbose_name = '部门'
         verbose_name_plural = verbose_name
 

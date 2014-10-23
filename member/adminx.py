@@ -4,7 +4,7 @@ import xadmin
 from xadmin.layout import TabHolder, Tab, Fieldset
 from xadmin.forms import AdminAuthenticationForm
 
-from .models import Member
+from .models import Member, Department
 
 class MemberAdmin(object):
 
@@ -19,7 +19,7 @@ class MemberAdmin(object):
     search_fields = ('number', 'username', 'email')
 
     ordering = ('number',)
-    style_fields = {'user_permissions': 'm2m_transfer', 'gender': 'radio-inline'}
+    style_fields = {'user_permissions': 'm2m_transfer', 'departments': 'm2m_transfer', 'gender': 'radio-inline'}
     model_icon = 'fa fa-user'
     relfield_style = 'fk-ajax'
 
@@ -36,6 +36,7 @@ class MemberAdmin(object):
                     'email', 'qq', 'mobile', 'weixin',
                     description="务必仔细填写您的联系方式，以便接受通知"
                 ),
+                'departments',
                 css_id='comm'
             ),
             Tab('权限分配',
@@ -64,6 +65,31 @@ class MBANumberField(forms.CharField):
     def to_python(self, value):
         value = super(MBANumberField, self).to_python(value)
         return value.upper()
+
+
+class DepartmentAdmin(object):
+
+    def buttons(self, instance):
+        return '<a href="add/?%s=%s" title="%s"><i class="fa fa-plus"></i></a>' % (
+                self.model._mptt_meta.parent_attr,
+                instance.pk,
+                '添加子部门')
+    buttons.short_description = ""
+    buttons.allow_tags = True
+
+    list_display = ('display_name', 'buttons')
+    style_fields = {'members': 'm2m_transfer'}
+    use_related_menu = False
+    delete_models_batch = False
+
+    def get_ordering(self):
+        # always order by (tree_id, left)
+        tree_id = self.model._mptt_meta.tree_id_attr
+        left = self.model._mptt_meta.left_attr
+        return (tree_id, left)
+
+xadmin.site.register(Department, DepartmentAdmin)
+
 
 class MBAAdminAuthenticationForm(AdminAuthenticationForm):
     username = MBANumberField(max_length=254, label="学号")
