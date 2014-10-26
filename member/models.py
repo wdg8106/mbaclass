@@ -40,6 +40,7 @@ class Member(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(u'激活账号', default=True)
 
     note = models.TextField(u'备注', null=True, blank=True)
+    departments = models.ManyToManyField('Department', verbose_name=u'所属部门', related_name='members', null=True, blank=True)
 
     is_staff = True
 
@@ -59,7 +60,6 @@ class Member(AbstractBaseUser, PermissionsMixin):
 class Department(MPTTModel):
     name = models.CharField(u'名称', max_length=50, unique=True)
     parent = TreeForeignKey('self', verbose_name=u'父级部门', null=True, blank=True, related_name='children')
-    members = models.ManyToManyField(Member, verbose_name=u'部门成员', related_name='departments', null=True, blank=True)
 
     def __str__(self):
         return self.name

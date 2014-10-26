@@ -40,6 +40,7 @@ INSTALLED_APPS = (
 
     'xadmin',
     'crispy_forms',
+    'xcms',
 
     'member',
     'event',

@@ -3,6 +3,7 @@ from django import forms
 import xadmin
 from xadmin.layout import TabHolder, Tab, Fieldset
 from xadmin.forms import AdminAuthenticationForm
+from xadmin.plugins.multiselect import SelectMultipleTransfer
 
 from .models import Member, Department
 
@@ -19,7 +20,7 @@ class MemberAdmin(object):
     search_fields = ('number', 'username', 'email')
 
     ordering = ('number',)
-    style_fields = {'user_permissions': 'm2m_transfer', 'departments': 'm2m_transfer', 'gender': 'radio-inline'}
+    style_fields = {'user_permissions': 'm2m_transfer', 'departments': 'm2m_tree', 'gender': 'radio-inline'}
     model_icon = 'fa fa-user'
     relfield_style = 'fk-ajax'
 
@@ -29,14 +30,13 @@ class MemberAdmin(object):
         TabHolder(
             Tab('必填项目',
                 Fieldset('个人信息',
-                    'number', 'username', 'avatar', 'classnum', 'birthday', 'gender', 'is_active',
+                    'number', 'username', 'avatar', 'classnum', 'birthday', 'gender', 'departments', 'is_active',
                     description="个人注册所需信息"
                 ),
                 Fieldset('联系方式',
                     'email', 'qq', 'mobile', 'weixin',
                     description="务必仔细填写您的联系方式，以便接受通知"
                 ),
-                'departments',
                 css_id='comm'
             ),
             Tab('权限分配',
@@ -66,6 +66,33 @@ class MBANumberField(forms.CharField):
         value = super(MBANumberField, self).to_python(value)
         return value.upper()
 
+class DepartmentFrom(forms.ModelForm):
+
+    member_set = forms.ModelMultipleChoiceField(
+        Member.objects.all(),
+        label="部门成员",
+        widget=SelectMultipleTransfer(u'部门成员', False),
+        required=False,
+        )
+
+    def __init__(self, *args, **kwargs):
+        super(DepartmentFrom, self).__init__(*args, **kwargs)
+        if self.instance.pk:
+            self.initial['member_set'] = self.instance.members.values_list('pk', flat=True)
+
+    def save(self, *args, **kwargs):
+        instance = super(DepartmentFrom, self).save(*args, **kwargs)
+        if instance.pk:
+            for m in instance.members.all():
+                if m not in self.cleaned_data['member_set']:
+                    # we remove books which have been unselected
+                    instance.members.remove(m)
+            all_members = instance.members.all()
+            for m in self.cleaned_data['member_set']:
+                if m not in all_members:
+                    # we add newly selected books
+                    instance.members.add(m)
+        return instance
 
 class DepartmentAdmin(object):
 
@@ -77,8 +104,13 @@ class DepartmentAdmin(object):
     buttons.short_description = ""
     buttons.allow_tags = True
 
+    def member_set(self, instance):
+        return ','.join([str(m) for m in instance.members.all()])
+    member_set.short_description = "部门成员"
+    member_set.allow_tags = True
+
+    form = DepartmentFrom
     list_display = ('display_name', 'buttons')
-    style_fields = {'members': 'm2m_transfer'}
     use_related_menu = False
     delete_models_batch = False
 
