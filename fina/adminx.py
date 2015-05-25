@@ -16,7 +16,6 @@ xadmin.site.register(Account, AccountAdmin)
 class MemberAccountAdmin(object):
     list_display = ('account', 'member', 'amount')
     list_filter = ('account', 'amount')
-    readonly_fields = ('amount', )
     search_fields = ('member__number', 'member__username')
     model_icon = 'fa fa-credit-card'
     relfield_style = 'fk-ajax'
